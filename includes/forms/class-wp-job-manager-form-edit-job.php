@@ -48,6 +48,15 @@ class WP_Job_Manager_Form_Edit_Job extends WP_Job_Manager_Form_Submit_Job {
 	}
 
 	/**
+	 * Show reCAPTCHA field on the form.
+	 *
+	 * @return bool
+	 */
+	public function show_recaptcha_field() {
+		return false;
+	}
+
+	/**
 	 * output function.
 	 *
 	 * @param array $atts

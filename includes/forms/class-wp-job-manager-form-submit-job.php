@@ -57,6 +57,10 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 	 */
 	public function __construct() {
 		add_action( 'wp', array( $this, 'process' ) );
+		if ( $this->use_recaptcha_field() ) {
+			add_action( 'submit_job_form_end', array( $this, 'display_recaptcha_field' ) );
+			add_action( 'submit_job_form_validate_fields', array( $this, 'validate_recaptcha_field' ) );
+		}
 
 		$this->steps  = (array) apply_filters( 'submit_job_steps', array(
 			'submit' => array(
@@ -275,6 +279,29 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 		if ( ! get_option( 'job_manager_enable_types' ) || wp_count_terms( 'job_listing_type' ) == 0 ) {
 			unset( $this->fields['job']['job_type'] );
 		}
+	}
+
+	/**
+	 * Use reCAPTCHA field on the form?
+	 *
+	 * @return bool
+	 */
+	public function use_recaptcha_field() {
+		if ( ! $this->is_recaptcha_available() ) {
+			return false;
+		}
+		return 1 === absint( get_option( 'job_manager_enable_recaptcha_job_submission' ) );
+	}
+
+	/**
+	 * Output the reCAPTCHA field.
+	 */
+	public function display_recaptcha_field() {
+		$field = array();
+		$field['label'] = get_option( 'job_manager_recaptcha_label' );
+		$field['required'] = true;
+		$field['site_key'] = get_option( 'job_manager_recaptcha_site_key' );
+		get_job_manager_template( 'form-fields/recaptcha-field.php', array( 'key' => 'recaptcha', 'field' => $field ) );
 	}
 
 	/**
